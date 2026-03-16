@@ -1,0 +1,217 @@
+{
+  "address": "D2JP3gdSTbRYi58Kdr3TAhwnvQz1u8zfD5mkQYavV1cm",
+  "metadata": {
+    "name": "sol_rbac",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "initialize_global",
+      "accounts": [
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "global_state", "writable": true },
+        { "name": "system_program", "address": "11111111111111111111111111111111" }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_org",
+      "accounts": [
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "global_state", "writable": true },
+        { "name": "organization", "writable": true },
+        { "name": "system_program", "address": "11111111111111111111111111111111" }
+      ],
+      "args": [{ "name": "name", "type": "string" }]
+    },
+    {
+      "name": "create_role",
+      "accounts": [
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "organization", "writable": true },
+        { "name": "role", "writable": true },
+        { "name": "system_program", "address": "11111111111111111111111111111111" }
+      ],
+      "args": [
+        { "name": "role_name", "type": "string" },
+        { "name": "permissions", "type": "u16" }
+      ]
+    },
+    {
+      "name": "assign_role",
+      "accounts": [
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "organization" },
+        { "name": "role", "writable": true },
+        { "name": "wallet" },
+        { "name": "role_assignment", "writable": true },
+        { "name": "system_program", "address": "11111111111111111111111111111111" }
+      ],
+      "args": []
+    },
+    {
+      "name": "revoke_role",
+      "accounts": [
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "organization" },
+        { "name": "role", "writable": true },
+        { "name": "wallet" },
+        { "name": "role_assignment", "writable": true },
+        { "name": "system_program", "address": "11111111111111111111111111111111" }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_token",
+      "accounts": [
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "global_state", "writable": true },
+        { "name": "organization", "writable": true },
+        { "name": "mint", "writable": true, "signer": true },
+        { "name": "managed_mint", "writable": true },
+        { "name": "token_program" },
+        { "name": "system_program", "address": "11111111111111111111111111111111" },
+        { "name": "rent", "address": "SysvarRent111111111111111111111111111111111" }
+      ],
+      "args": [{ "name": "config", "type": { "defined": { "name": "CreateTokenConfig" } } }]
+    },
+    {
+      "name": "initialize_extra_metas",
+      "accounts": [
+        { "name": "payer", "writable": true, "signer": true },
+        { "name": "mint" },
+        { "name": "thaw_extra_metas", "writable": true },
+        { "name": "freeze_extra_metas", "writable": true },
+        { "name": "system_program", "address": "11111111111111111111111111111111" }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    { "name": "GlobalState" },
+    { "name": "ManagedMint" },
+    { "name": "Organization" },
+    { "name": "Role" },
+    { "name": "RoleAssignment" }
+  ],
+  "errors": [
+    { "code": 6000, "name": "Unauthorized", "msg": "Unauthorized: caller does not have the required role" },
+    { "code": 6001, "name": "RoleAlreadyExists", "msg": "Role already exists in this organization" },
+    { "code": 6002, "name": "RoleAlreadyAssigned", "msg": "Role assignment already exists for this wallet" },
+    { "code": 6003, "name": "RoleNotAssigned", "msg": "Role not assigned to this wallet" },
+    { "code": 6004, "name": "InvalidOrgAuthority", "msg": "Invalid organization authority" },
+    { "code": 6005, "name": "InvalidPermissions", "msg": "Invalid role permissions configuration" },
+    { "code": 6006, "name": "TokenAclNotEnabled", "msg": "Token ACL is not enabled for this mint" },
+    { "code": 6007, "name": "InvalidExtensionConfig", "msg": "Invalid Token-2022 extension configuration" },
+    { "code": 6008, "name": "InvalidTransferFeeBps", "msg": "Transfer fee basis points must be <= 10000" },
+    { "code": 6009, "name": "MaxRolesExceeded", "msg": "Max roles per organization exceeded" },
+    { "code": 6010, "name": "MaxAssignmentsExceeded", "msg": "Max role assignments exceeded" },
+    { "code": 6011, "name": "OrgNameTooLong", "msg": "Organization name too long (max 32 bytes)" },
+    { "code": 6012, "name": "RoleNameTooLong", "msg": "Role name too long (max 32 bytes)" },
+    { "code": 6013, "name": "InvalidFlagAccount", "msg": "Invalid flag account - not owned by Token ACL" },
+    { "code": 6014, "name": "FlagAccountNotSet", "msg": "Flag account not set - reentrancy guard missing" },
+    { "code": 6015, "name": "WalletBlocked", "msg": "Wallet is on the block list and cannot be thawed" },
+    { "code": 6016, "name": "ThawNotPermitted", "msg": "Wallet does not have a role that permits thawing" },
+    { "code": 6017, "name": "FreezeNotPermitted", "msg": "Wallet does not have a role that permits freezing" }
+  ],
+  "types": [
+    {
+      "name": "GlobalState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "authority", "type": "pubkey" },
+          { "name": "total_orgs", "type": "u64" },
+          { "name": "total_mints", "type": "u64" },
+          { "name": "fee_receiver", "type": "pubkey" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "Organization",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "authority", "type": "pubkey" },
+          { "name": "name", "type": "string" },
+          { "name": "role_count", "type": "u16" },
+          { "name": "mint_count", "type": "u16" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "Role",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "organization", "type": "pubkey" },
+          { "name": "name", "type": "string" },
+          { "name": "permissions", "type": "u16" },
+          { "name": "assignment_count", "type": "u32" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "RoleAssignment",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "organization", "type": "pubkey" },
+          { "name": "role", "type": "pubkey" },
+          { "name": "wallet", "type": "pubkey" },
+          { "name": "assigned_at", "type": "i64" },
+          { "name": "assigned_by", "type": "pubkey" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "ManagedMint",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "organization", "type": "pubkey" },
+          { "name": "mint", "type": "pubkey" },
+          { "name": "token_type", "type": "u8" },
+          { "name": "has_transfer_fee", "type": "bool" },
+          { "name": "has_transfer_hook", "type": "bool" },
+          { "name": "has_memo_required", "type": "bool" },
+          { "name": "has_token_acl", "type": "bool" },
+          { "name": "transfer_fee_bps", "type": "u16" },
+          { "name": "max_transfer_fee", "type": "u64" },
+          { "name": "transfer_hook_program", "type": "pubkey" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "CreateTokenConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "token_type", "type": { "defined": { "name": "TokenType" } } },
+          { "name": "name", "type": "string" },
+          { "name": "symbol", "type": "string" },
+          { "name": "uri", "type": "string" },
+          { "name": "transfer_fee_bps", "type": { "option": "u16" } },
+          { "name": "max_transfer_fee", "type": { "option": "u64" } },
+          { "name": "transfer_hook_program", "type": { "option": "pubkey" } },
+          { "name": "memo_required", "type": "bool" },
+          { "name": "token_acl_enabled", "type": "bool" }
+        ]
+      }
+    },
+    {
+      "name": "TokenType",
+      "type": {
+        "kind": "enum",
+        "variants": [{ "name": "Fungible" }, { "name": "NonFungible" }]
+      }
+    }
+  ]
+}
